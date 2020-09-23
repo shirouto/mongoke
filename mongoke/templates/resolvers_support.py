@@ -201,14 +201,19 @@ MONGODB_OPERATORS = [
 
 def strip_nones(x: dict):
     result = {}
+
     for k, v in x.items():
         if not v == None and v != {}:
             if k in MONGODB_OPERATORS:
                 k = '$' + k
-            if isinstance(v, dict):
+
+            if isinstance(v, list):
+                result[k] = [strip_nones(x) for x in v if x != None and x != {}]
+            elif isinstance(v, dict):
                 result[k] = strip_nones(v)
             else:
                 result[k] = v
+
     return result
 
 '''
