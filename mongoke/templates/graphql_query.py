@@ -69,6 +69,7 @@ type ${{type_name}}Edge {
 }
 
 input ${{type_name}}Where { 
+    search: String
     and: [${{type_name}}Where]
     or: [${{type_name}}Where]
     # $not: [${{type_name}}Where]

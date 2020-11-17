@@ -217,6 +217,11 @@ def strip_nones(x: dict):
 
     for k, v in x.items():
         if not v == None and v != {}:
+            if k == 'search':
+                result['$text'] = {'$search': v}
+
+                continue
+
             if k in MONGODB_OPERATORS:
                 k = '$' + k
 
