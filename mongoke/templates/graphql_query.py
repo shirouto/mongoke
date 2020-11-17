@@ -19,6 +19,8 @@ input Where{scalar} {'{'}
     nin: [{scalar}]
     eq: {scalar}
     neq: {scalar}
+    lt: {scalar}
+    gt: {scalar}
 {'}'}
 """ for scalar in map(str, sorted(searchables))])
 }}

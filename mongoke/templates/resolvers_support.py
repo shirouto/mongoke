@@ -48,6 +48,7 @@ direction_map = {
 def get_pagination(args,):
     after = args.get('after')
     before = args.get('before')
+
     return {
         'after': after,
         'before': before,
@@ -59,6 +60,7 @@ def get_pagination(args,):
 def opposite_direction(dir):
     if dir == ASCENDING:
         return DESCENDING
+
     return ASCENDING
 
 async def connection_resolver(
@@ -82,8 +84,10 @@ async def connection_resolver(
     direction = pagination['direction']
     first, last = pagination.get('first'), pagination.get('last'),
     after, before = pagination.get('after'), pagination.get('before')
+
     if after:
         after = INPUT_COERCERS.get(scalar_name, lambda x: x)(after)
+
     if before:
         before = INPUT_COERCERS.get(scalar_name, lambda x: x)(before)
 
@@ -100,14 +104,17 @@ async def connection_resolver(
 
     if after and not (first or before):
         raise Exception('need `first` or `before` if using `after`')
+
     if before and not (last or after):
         raise Exception('need `last` or `after` if using `before`')
+
     if first and last:
         raise Exception('no sense using first and last together')
 
     args: dict = dict()
     lt = '$gt' if direction == DESCENDING else '$lt'
     gt = '$lt' if direction == DESCENDING else '$gt'
+
     if after != None and before != None:
         args.update(dict(
             match={
@@ -138,12 +145,15 @@ async def connection_resolver(
         ))
     else:
         args = dict(match=where, )
+
     if pipeline:
         args.update(dict(pipeline=pipeline))
     sorting = direction if not last else opposite_direction(direction)
     args.update(dict(sort={cursorField: sorting}))
+
     if last:
         args.update(dict(limit=last + 1, ))
+
     if first:
         args.update(dict(limit=first + 1, ))
     # elif first:
@@ -168,6 +178,7 @@ async def connection_resolver(
 
     end_cursor = nodes[-1].get(cursorField) if nodes else None
     start_cursor = nodes[0].get(cursorField) if nodes else None
+
     return {
         'nodes': nodes,
         'edges': lmap(
@@ -196,6 +207,8 @@ MONGODB_OPERATORS = [
     'neq',
     'or',
     'and',
+    'gt',
+    'lt',
     # TODO add gt, gte, like ....
 ]
 
