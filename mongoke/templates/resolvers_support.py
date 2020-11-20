@@ -148,8 +148,39 @@ async def connection_resolver(
 
     if pipeline:
         args.update(dict(pipeline=pipeline))
+
     sorting = direction if not last else opposite_direction(direction)
-    args.update(dict(sort={cursorField: sorting}))
+    sorting_criterion = {cursorField: sorting}
+    def hasTextSearch(where):
+        if isinstance(where, dict):
+            for k, v in where.items():
+                if k == '$search':
+                    return v
+                else:
+                    exit = hasTextSearch(v)
+
+                    if exit:
+                        return exit
+                    else:
+                        continue
+
+        if isinstance(where, list):
+            for v in where:
+                exit =  hasTextSearch(v)
+
+                if exit:
+                    return exit
+                else:
+                    continue
+
+        return False
+
+    search_query = hasTextSearch(where)
+
+    if search_query and len(search_query.split(" ")) > 1:
+        sorting_criterion = dict(score={'$meta': 'textScore'})
+
+    args.update(dict(sort=sorting_criterion))
 
     if last:
         args.update(dict(limit=last + 1, ))
